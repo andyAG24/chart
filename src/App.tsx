@@ -1,25 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import { Chart } from './components/Chart';
 
 function App() {
+  const coordsInitial = [{ x: 90, y: 90 }, { x: 180, y: 90 }, { x: 180, y: 180 }, { x: 270, y: 180 }];
+
+  const [coords, setCoords] = useState(coordsInitial);
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.keyCode !== 13) return;
+
+    const values = event.currentTarget.value.split(' ');
+
+    if (values.length > 2 || !values.every((value) => !isNaN(+value))) {
+      event.currentTarget.value = 'Error';
+      return;
+    };
+
+    const newCoord = { x: +values[0], y: +values[1] };
+    setCoords([...coords, newCoord]);
+    event.currentTarget.value = '';
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Chart viewHeight={250} viewWidth={500} coords={coords} dpiRatio={2} />
+      <div>
+        <span>Add new point in format (x y) </span>
+        <input onKeyDown={onKeyDown} />
+      </div>
+      {coords.map(({ x, y }, index) => <div key={index}>{x} {y}</div>)}
+    </>
   );
 }
 
