@@ -1,3 +1,5 @@
+import { Line } from './Chart.types';
+
 export const coordsMock = [
   { x: 0, y: 188 },
   { x: 25, y: 692 },
@@ -36,4 +38,17 @@ export const coordsMock = [
   { x: 850, y: 288 },
   { x: 875, y: 596 },
   { x: 900, y: 403 },
+];
+
+export const LinesMock: Line[] = [
+  {
+    color: 'red',
+    width: 2,
+    coords: coordsMock,
+  },
+  {
+    color: 'green',
+    width: 2,
+    coords: coordsMock.map(({ x }) => ({ x, y: Math.floor(Math.random() * 1000) })),
+  },
 ];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import { Chart } from './components/Chart';
-import { coordsMock } from './components/CoordsOfChart.mock';
+import { coordsMock, LinesMock } from './components/Chart.mock';
 
 function App() {
   const [coords, setCoords] = useState(coordsMock);
