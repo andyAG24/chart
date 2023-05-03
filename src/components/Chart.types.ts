@@ -18,7 +18,6 @@ export interface Line {
 }
 
 export interface ChartProps {
-  coords: Coord[];
   dpiRatio?: number;
   viewHeight: number;
   viewWidth: number;
