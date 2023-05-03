@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ChartOptions, ChartProps, Coord } from './Chart.types';
+import { ChartOptions, ChartProps, Line } from './Chart.types';
 
 const defaultOptions: ChartOptions = {
   padding: 0,
@@ -9,7 +9,7 @@ const defaultOptions: ChartOptions = {
   },
 };
 
-export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions }: ChartProps) {
+export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions, lines }: ChartProps) {
   const ROWS_COUNT = options.rowsCount || 5;
   const PADDING = options.padding || 0;
 
@@ -23,7 +23,7 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, optio
   const canvasYStart = dpiViewHeight - PADDING;
   const canvasYEnd = PADDING;
 
-  const yMaxData = Math.max(...data.map((coord) => coord.y));
+  const yMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.y))));
 
   const initCanvas = (initialCanvas: HTMLCanvasElement) => {
     initialCanvas.style.height = viewHeight + 'px';
@@ -72,22 +72,29 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, optio
     context.closePath();
   };
 
-  const drawLine = (context: CanvasRenderingContext2D, coord: Coord) => {
+  const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
     const yRatio = (dpiViewHeight - 2 * PADDING) / yMaxData;
 
-    const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
-    const canvasX = coord.x + PADDING;
+    const { coords, color, width } = lineData;
 
-    if (options.line?.width) context.lineWidth = options.line.width;
-    context.strokeStyle = 'red';
-    context.lineTo(canvasX, canvasY);
-  };
-
-  const drawChart = (context: CanvasRenderingContext2D, initialCoords: Coord[]) => {
     context.beginPath();
-    initialCoords.forEach((coord) => drawLine(context, coord));
+
+    context.lineWidth = width;
+    context.strokeStyle = color;
+
+    coords.forEach((coord) => {
+      const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
+      const canvasX = coord.x + PADDING;
+
+      context.lineTo(canvasX, canvasY);
+    });
+
     context.stroke();
     context.closePath();
+  };
+
+  const drawChart = (context: CanvasRenderingContext2D) => {
+    lines.forEach((lineData) => drawLine(context, lineData));
   };
 
   useEffect(() => {
@@ -100,7 +107,7 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, optio
     initCanvas(canvas);
     initAxis(context);
 
-    drawChart(context, data);
+    drawChart(context);
   }, []);
 
   useEffect(() => {
@@ -110,8 +117,8 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, optio
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    drawChart(context, data);
-  }, [data]);
+    drawChart(context);
+  }, [lines]);
 
   return (
     <>

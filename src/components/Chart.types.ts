@@ -11,10 +11,18 @@ export interface ChartOptions {
   };
 }
 
+export interface Line {
+  color: string;
+  width: number;
+  coords: Coord[];
+}
+
 export interface ChartProps {
   coords: Coord[];
   dpiRatio?: number;
   viewHeight: number;
   viewWidth: number;
   options: ChartOptions;
+
+  lines: Line[];
 }

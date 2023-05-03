@@ -29,6 +29,7 @@ function App() {
         coords={coords}
         dpiRatio={2}
         options={{ line: { width: 2 }, padding: 50, rowsCount: 5 }}
+        lines={LinesMock}
       />
       <div>
         <span>Add new point in format (x y) </span>
