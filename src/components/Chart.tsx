@@ -20,13 +20,12 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
   const dpiViewHeight = viewHeight * dpiRatio;
   const dpiViewWidth = viewWidth * dpiRatio;
 
-  const computeLimits = (data: Coord[]) => {
-    const yArr = data.map((coord) => coord.y);
-    const min = Math.min(...yArr);
-    const max = Math.max(...yArr);
+  const canvasXStart = PADDING;
+  const canvasXEnd = dpiViewWidth - PADDING;
+  const canvasYStart = dpiViewHeight - PADDING;
+  const canvasYEnd = PADDING;
 
-    return { min, max };
-  };
+  const yMaxData = Math.max(...data.map((coord) => coord.y));
 
   const initCanvas = (initialCanvas: HTMLCanvasElement) => {
     initialCanvas.style.height = viewHeight + 'px';
@@ -39,15 +38,20 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
     context.beginPath();
     context.strokeStyle = '#dbdbdb';
 
-    const stepDelta = (dpiViewHeight - PADDING) / ROWS_COUNT;
+    const stepY = (dpiViewHeight - 2 * PADDING) / ROWS_COUNT;
+    const textStep = yMaxData / ROWS_COUNT;
 
     for (let index = 1; index <= ROWS_COUNT; index++) {
-      const y = stepDelta * index + PADDING;
+      const canvasY = dpiViewHeight - (stepY * index + PADDING);
 
-      context.fillText(String(stepDelta * index), PADDING, dpiViewHeight - y);
+      const text = textStep * index;
 
-      context.moveTo(PADDING, dpiViewHeight - y);
-      context.lineTo(dpiViewWidth - PADDING, dpiViewHeight - y);
+      const textMarginX = 5;
+      const textMarginY = 25;
+      context.fillText(String(text), canvasXStart + textMarginX, canvasY + textMarginY);
+
+      context.moveTo(canvasXStart, canvasY);
+      context.lineTo(canvasXEnd, canvasY);
     }
 
     context.stroke();
@@ -57,9 +61,9 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
   const initAxis = (context: CanvasRenderingContext2D) => {
     context.beginPath();
 
-    context.moveTo(PADDING, PADDING);
-    context.lineTo(PADDING, dpiViewHeight - PADDING);
-    context.lineTo(dpiViewWidth - PADDING, dpiViewHeight - PADDING);
+    context.moveTo(canvasXStart, canvasYEnd);
+    context.lineTo(canvasXStart, canvasYStart);
+    context.lineTo(canvasXEnd, canvasYStart);
     context.stroke();
 
     context.font = '24px mono';
@@ -71,12 +75,16 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
   };
 
   const drawLine = (context: CanvasRenderingContext2D, coord: Coord) => {
-    context.lineTo(coord.x + PADDING, dpiViewHeight - PADDING - coord.y);
+    const yRatio = (dpiViewHeight - 2 * PADDING) / yMaxData;
+
+    const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
+    const canvasX = coord.x + PADDING;
+
+    context.lineTo(canvasX, canvasY);
   };
 
   const drawChart = (context: CanvasRenderingContext2D, initialCoords: Coord[]) => {
     context.beginPath();
-    // context.moveTo(initialCoords[0].x, dpiViewHeight - initialCoords[0].y);
     initialCoords.forEach((coord) => drawLine(context, coord));
     context.stroke();
     context.closePath();
@@ -91,7 +99,6 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
 
     initCanvas(canvas);
     initAxis(context);
-
 
     context.strokeStyle = 'red';
     drawChart(context, data);
@@ -113,4 +120,4 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
       <canvas ref={canvasRef} style={{ border: '1px solid gray' }}></canvas>
     </>
   );
-};
+}
