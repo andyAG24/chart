@@ -1,20 +1,18 @@
 import React, { useEffect, useRef } from 'react';
+import { ChartOptions, ChartProps, Coord } from './Chart.types';
 
-interface Coord {
-  x: number;
-  y: number;
-}
+const defaultOptions: ChartOptions = {
+  padding: 0,
+  rowsCount: 5,
+  line: {
+    width: 2,
+  },
+};
 
-interface Props {
-  coords: Coord[];
-  dpiRatio?: number;
-  viewHeight: number;
-  viewWidth: number;
-}
+export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions }: ChartProps) {
+  const ROWS_COUNT = options.rowsCount || 5;
+  const PADDING = options.padding || 0;
 
-export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Props) {
-  const ROWS_COUNT = 5;
-  const PADDING = 50;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const dpiViewHeight = viewHeight * dpiRatio;
@@ -44,7 +42,7 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
     for (let index = 1; index <= ROWS_COUNT; index++) {
       const canvasY = dpiViewHeight - (stepY * index + PADDING);
 
-      const text = textStep * index;
+      const text = Math.ceil(textStep * index);
 
       const textMarginX = 5;
       const textMarginY = 25;
@@ -80,6 +78,8 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
     const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
     const canvasX = coord.x + PADDING;
 
+    if (options.line?.width) context.lineWidth = options.line.width;
+    context.strokeStyle = 'red';
     context.lineTo(canvasX, canvasY);
   };
 
@@ -100,7 +100,6 @@ export function Chart({ coords: data, dpiRatio = 1, viewHeight, viewWidth }: Pro
     initCanvas(canvas);
     initAxis(context);
 
-    context.strokeStyle = 'red';
     drawChart(context, data);
   }, []);
 
