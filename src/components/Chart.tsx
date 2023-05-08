@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
 
 const defaultOptions: ChartOptions = {
@@ -97,27 +97,31 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     lines.forEach((lineData) => drawLine(context, lineData));
   };
 
-  useEffect(() => {
+  const getCanvasAndContext = (): {
+    canvas: HTMLCanvasElement | null;
+    context: CanvasRenderingContext2D | null | undefined;
+  } => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const context = canvas?.getContext('2d');
+    return { canvas, context };
+  };
 
-    const context = canvas.getContext('2d');
-    if (!context) return;
+  useEffect(() => {
+    const { canvas, context } = getCanvasAndContext();
 
-    initCanvas(canvas);
-    initAxis(context);
+    canvas && initCanvas(canvas);
 
-    drawChart(context);
+    if (context) {
+      initAxis(context);
+
+      drawChart(context);
+    }
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const { context } = getCanvasAndContext();
 
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    drawChart(context);
+    context && drawChart(context);
   }, [lines]);
 
   return (
