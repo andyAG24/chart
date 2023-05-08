@@ -12,6 +12,7 @@ const defaultOptions: ChartOptions = {
 export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions, lines }: ChartProps) {
   const ROWS_COUNT = options.rowsCount || 5;
   const PADDING = options.padding || 0;
+  const POINTER_RADIUS = 5 * dpiRatio;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -35,6 +36,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   );
 
   const yMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.y))));
+  const xMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.x))));
 
   const getCanvasAndContext = (): {
     canvas: HTMLCanvasElement | null;
@@ -81,6 +83,40 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
       context.stroke();
     });
 
+  const isOver = (x: number, length: number) => {
+    const width = dpiViewWidth / length;
+    return Math.abs(x - proxy.mouse.x) < width / 2;
+  };
+
+  const drawXStep = (context: CanvasRenderingContext2D) =>
+    drawPath(context, () => {
+      context.strokeStyle = 'magenta';
+
+      const coordsMaxCount = Math.max(...lines.map((line) => line.coords.length)) - 1;
+
+      const stepX = (dpiViewWidth - 2 * PADDING) / coordsMaxCount;
+      const textStep = xMaxData / coordsMaxCount;
+
+      for (let index = 1; index <= coordsMaxCount; index++) {
+        const canvasX = stepX * index + PADDING;
+
+        if (isOver(canvasX, coordsMaxCount)) {
+          context.save();
+
+          const text = Math.ceil(textStep * index);
+
+          context.fillText(String(text), canvasX, canvasYEnd);
+
+          context.moveTo(canvasX, canvasYStart);
+          context.lineTo(canvasX, canvasYEnd);
+
+          context.restore();
+        }
+      }
+
+      context.stroke();
+    });
+
   const initAxis = (context: CanvasRenderingContext2D) =>
     drawPath(context, () => {
       context.moveTo(canvasXStart, canvasYEnd);
@@ -92,6 +128,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
       context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
 
       drawYSteps(context);
+      drawXStep(context);
     });
 
   const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
@@ -109,10 +146,29 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
         context.lineTo(canvasX, canvasY);
       });
-
       context.stroke();
     });
+
+    coords.forEach((coord) => {
+      const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
+      const canvasX = coord.x + PADDING;
+
+      if (isOver(canvasX, coords.length)) {
+        context.save();
+        drawPointer(context, canvasX, canvasY, color);
+        context.restore();
+      }
+    });
   };
+
+  const drawPointer = (context: CanvasRenderingContext2D, x: number, y: number, strokeColor: string) =>
+    drawPath(context, () => {
+      context.strokeStyle = strokeColor;
+      context.fillStyle = 'white';
+      context.arc(x, y, POINTER_RADIUS, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+    });
 
   const drawChart = (context: CanvasRenderingContext2D) => {
     lines.forEach((lineData) => drawLine(context, lineData));
@@ -130,12 +186,11 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
       drawChart(context);
     }
-    console.log(proxy.mouse);
   }, [lines]);
 
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
     proxy.mouse = {
-      x: clientX,
+      x: clientX * dpiRatio,
       y: clientY,
     };
   };
