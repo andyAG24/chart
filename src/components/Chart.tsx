@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
 
 const defaultOptions: ChartOptions = {
@@ -22,6 +22,17 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   const canvasXEnd = dpiViewWidth - PADDING;
   const canvasYStart = dpiViewHeight - PADDING;
   const canvasYEnd = PADDING;
+
+  const proxy = new Proxy<{ mouse: { x: number; y: number } }>(
+    { mouse: { x: 0, y: 0 } },
+    {
+      set(...args) {
+        const result = Reflect.set(...args);
+        requestAnimationFrame(paint);
+        return result;
+      },
+    },
+  );
 
   const yMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.y))));
 
@@ -107,28 +118,34 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     lines.forEach((lineData) => drawLine(context, lineData));
   };
 
-  useEffect(() => {
+  const paint = useCallback(() => {
     const { canvas, context } = getCanvasAndContext();
 
     canvas && initCanvas(canvas);
 
     if (context) {
+      context.clearRect(0, 0, dpiViewWidth, dpiViewHeight);
+
       initAxis(context);
 
       drawChart(context);
     }
-  }, []);
-
-  useEffect(() => {
-    const { context } = getCanvasAndContext();
-
-    context && drawChart(context);
+    console.log(proxy.mouse);
   }, [lines]);
+
+  const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
+    proxy.mouse = {
+      x: clientX,
+      y: clientY,
+    };
+  };
+
+  useEffect(() => paint(), []);
 
   return (
     <>
       <div>Chart</div>
-      <canvas ref={canvasRef} style={{ border: '1px solid gray' }}></canvas>
+      <canvas ref={canvasRef} style={{ border: '1px solid gray' }} onMouseMove={mouseMoveHandler}></canvas>
     </>
   );
 }
