@@ -1,7 +1,14 @@
 {
-  "name": "chart",
+  "name": "@andyAG24/chart-test",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "version": "0.1.0",
-  "private": true,
+  "main": "build/esm/index.js",
+  "module": "build/cjs/index.js",
+  "files": ["build/**/*"],
+  "types": "build/index.d.ts",
+  "private": false,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
