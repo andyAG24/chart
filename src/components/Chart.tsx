@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
+import { getMaxCoordValueByAxis } from './Chart.utils';
 
 const defaultOptions: ChartOptions = {
   padding: 0,
@@ -35,8 +36,8 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     },
   );
 
-  const yMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.y))));
-  const xMaxData = Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord.x))));
+  const yMaxData = getMaxCoordValueByAxis(lines, 'y');
+  const xMaxData = getMaxCoordValueByAxis(lines, 'x');
 
   const getCanvasAndContext = (): {
     canvas: HTMLCanvasElement | null;
