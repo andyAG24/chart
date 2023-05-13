@@ -95,18 +95,19 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
       const coordsMaxCount = Math.max(...lines.map((line) => line.coords.length)) - 1;
 
-      const stepX = (dpiViewWidth - 2 * PADDING) / coordsMaxCount;
-      const textStep = xMaxData / coordsMaxCount;
+      const allXValues = new Set();
+      lines.map((line) => line.coords.map((coord) => allXValues.add(coord.x)));
 
-      for (let index = 1; index <= coordsMaxCount; index++) {
-        const canvasX = stepX * index + PADDING;
+      const iterator = allXValues.values();
+
+      for (let index = 1; index <= allXValues.size; index++) {
+        const x = iterator.next().value;
+        const canvasX = x + PADDING;
 
         if (isOver(canvasX, coordsMaxCount)) {
           context.save();
 
-          const text = Math.ceil(textStep * index);
-
-          context.fillText(String(text), canvasX, canvasYEnd);
+          context.fillText(String(x), canvasX, canvasYEnd);
 
           context.moveTo(canvasX, canvasYStart);
           context.lineTo(canvasX, canvasYEnd);
@@ -190,8 +191,13 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   }, [lines]);
 
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
+    const { canvas } = getCanvasAndContext();
+
+    const clientRect = canvas?.getBoundingClientRect();
+    console.log('getBoundingClientRect', clientRect?.left);
+
     proxy.mouse = {
-      x: clientX * dpiRatio,
+      x: (clientX - (clientRect?.left || 0)) * dpiRatio,
       y: clientY,
     };
   };
