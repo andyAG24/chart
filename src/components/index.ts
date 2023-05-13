@@ -1,2 +1,2 @@
-export { Chart } from './Chart';
-export * from './Chart.types';
+export { Chart } from './Chart/Chart';
+export * from './Chart/Chart.types';

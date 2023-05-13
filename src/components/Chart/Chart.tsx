@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
 import { getMaxCoordValueByAxis } from './Chart.utils';
+import { Slider } from '../Slider/Slider';
 
 const defaultOptions: ChartOptions = {
   padding: 0,
@@ -37,7 +38,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   );
 
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
-  const xMaxData = getMaxCoordValueByAxis(lines, 'x');
 
   const getCanvasAndContext = (): {
     canvas: HTMLCanvasElement | null;
@@ -194,8 +194,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     const { canvas } = getCanvasAndContext();
 
     const clientRect = canvas?.getBoundingClientRect();
-    console.log('getBoundingClientRect', clientRect?.left);
-
     proxy.mouse = {
       x: (clientX - (clientRect?.left || 0)) * dpiRatio,
       y: clientY,
@@ -205,9 +203,9 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   useEffect(() => paint(), []);
 
   return (
-    <>
-      <div>Chart</div>
-      <canvas ref={canvasRef} style={{ border: '1px solid gray' }} onMouseMove={mouseMoveHandler}></canvas>
-    </>
+    <div style={{ border: '1px solid gray', display: 'flex', flexDirection: 'column' }}>
+      <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>
+      <Slider />
+    </div>
   );
 }
