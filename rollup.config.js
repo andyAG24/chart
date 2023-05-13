@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import dts from 'rollup-plugin-dts';
+import postcss from 'rollup-plugin-postcss';
 
 export default [
   {
@@ -14,7 +15,10 @@ export default [
         format: 'cjs',
       },
     ],
-    plugins: [typescript({ tsconfig: './tsconfig.json' })],
+    plugins: [
+      typescript({ tsconfig: './tsconfig.json' }),
+      postcss({ extract: 'index.css', modules: true, use: ['sass'], minimize: true }),
+    ],
     external: ['react'],
   },
   {
