@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
 import { getMaxCoordValueByAxis } from './Chart.utils';
-import { Slider } from '../Slider/Slider';
+import { drawPath } from '../../utils';
 
 const defaultOptions: ChartOptions = {
   padding: 0,
@@ -53,12 +53,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     initialCanvas.style.width = viewWidth + 'px';
     initialCanvas.height = dpiViewHeight;
     initialCanvas.width = dpiViewWidth;
-  };
-
-  const drawPath = (context: CanvasRenderingContext2D, callback: () => void) => {
-    context.beginPath();
-    callback();
-    context.closePath();
   };
 
   const drawYSteps = (context: CanvasRenderingContext2D) =>
