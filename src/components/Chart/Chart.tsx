@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { ChartOptions, ChartProps, Line } from './Chart.types';
-import { getMaxCoordValueByAxis } from './Chart.utils';
+import { getCanvasAndContext, getMaxCoordValueByAxis } from './Chart.utils';
 import { drawPath } from '../../utils';
 
 const defaultOptions: ChartOptions = {
@@ -38,15 +38,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   );
 
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
-
-  const getCanvasAndContext = (): {
-    canvas: HTMLCanvasElement | null;
-    context: CanvasRenderingContext2D | null | undefined;
-  } => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext('2d');
-    return { canvas, context };
-  };
 
   const initCanvas = (initialCanvas: HTMLCanvasElement) => {
     initialCanvas.style.height = viewHeight + 'px';
@@ -171,7 +162,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   };
 
   const paint = useCallback(() => {
-    const { canvas, context } = getCanvasAndContext();
+    const { canvas, context } = getCanvasAndContext(canvasRef);
 
     canvas && initCanvas(canvas);
 
@@ -185,7 +176,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   }, [lines]);
 
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
-    const { canvas } = getCanvasAndContext();
+    const { canvas } = getCanvasAndContext(canvasRef);
 
     const clientRect = canvas?.getBoundingClientRect();
     proxy.mouse = {
