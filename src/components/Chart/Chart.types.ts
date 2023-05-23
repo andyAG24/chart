@@ -35,5 +35,6 @@ export type CanvasEndPoints = {
 export interface ChartConfig {
   rowsCount: number;
   dpiViewHeight: number;
+  dpiViewWidth: number;
   padding: number;
 }

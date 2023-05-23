@@ -15,6 +15,11 @@ export const getCanvasAndContext = (
   return { canvas, context };
 };
 
+export const isOver = (x: number, mouseX: number, length: number, dpiViewWidth: number) => {
+  const width = dpiViewWidth / length;
+  return Math.abs(x - mouseX) < width / 2;
+};
+
 export const drawYSteps = (
   context: CanvasRenderingContext2D,
   yMax: number,
@@ -38,6 +43,42 @@ export const drawYSteps = (
 
       context.moveTo(xStart, canvasY);
       context.lineTo(xEnd, canvasY);
+    }
+
+    context.stroke();
+  });
+
+export const drawXStep = (
+  context: CanvasRenderingContext2D,
+  lines: Line[],
+  mouseX: number,
+  { yStart, yEnd }: CanvasEndPoints,
+  { padding: PADDING, dpiViewWidth }: ChartConfig,
+) =>
+  drawPath(context, () => {
+    context.strokeStyle = 'magenta';
+
+    const coordsMaxCount = Math.max(...lines.map((line) => line.coords.length)) - 1;
+
+    const allXValues = new Set();
+    lines.map((line) => line.coords.map((coord) => allXValues.add(coord.x)));
+
+    const iterator = allXValues.values();
+
+    for (let index = 1; index <= allXValues.size; index++) {
+      const x = iterator.next().value;
+      const canvasX = x + PADDING;
+
+      if (isOver(canvasX, mouseX, coordsMaxCount, dpiViewWidth)) {
+        context.save();
+
+        context.fillText(String(x), canvasX, yEnd);
+
+        context.moveTo(canvasX, yStart);
+        context.lineTo(canvasX, yEnd);
+
+        context.restore();
+      }
     }
 
     context.stroke();
