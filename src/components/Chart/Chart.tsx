@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
-import { ChartOptions, ChartProps, Line } from './Chart.types';
-import { getCanvasAndContext, getMaxCoordValueByAxis } from './Chart.utils';
+import { CanvasEndPoints, ChartConfig, ChartOptions, ChartProps, Line } from './Chart.types';
+import { drawYSteps, getCanvasAndContext, getMaxCoordValueByAxis } from './Chart.utils';
 import { drawPath } from '../../utils';
 
 const defaultOptions: ChartOptions = {
@@ -26,6 +26,19 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   const canvasYStart = dpiViewHeight - PADDING;
   const canvasYEnd = PADDING;
 
+  const canvasEndPoints: CanvasEndPoints = {
+    xStart: canvasXStart,
+    xEnd: canvasXEnd,
+    yStart: canvasYStart,
+    yEnd: canvasYEnd,
+  };
+
+  const chartConfig: ChartConfig = {
+    dpiViewHeight,
+    padding: PADDING,
+    rowsCount: ROWS_COUNT,
+  };
+
   const proxy = new Proxy<{ mouse: { x: number; y: number } }>(
     { mouse: { x: 0, y: 0 } },
     {
@@ -45,29 +58,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     initialCanvas.height = dpiViewHeight;
     initialCanvas.width = dpiViewWidth;
   };
-
-  const drawYSteps = (context: CanvasRenderingContext2D) =>
-    drawPath(context, () => {
-      context.strokeStyle = '#dbdbdb';
-
-      const stepY = (dpiViewHeight - 2 * PADDING) / ROWS_COUNT;
-      const textStep = yMaxData / ROWS_COUNT;
-
-      for (let index = 1; index <= ROWS_COUNT; index++) {
-        const canvasY = dpiViewHeight - (stepY * index + PADDING);
-
-        const text = Math.ceil(textStep * index);
-
-        const textMarginX = 5;
-        const textMarginY = 25;
-        context.fillText(String(text), canvasXStart + textMarginX, canvasY + textMarginY);
-
-        context.moveTo(canvasXStart, canvasY);
-        context.lineTo(canvasXEnd, canvasY);
-      }
-
-      context.stroke();
-    });
 
   const isOver = (x: number, length: number) => {
     const width = dpiViewWidth / length;
@@ -114,7 +104,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
       context.font = '24px mono';
       context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
 
-      drawYSteps(context);
+      drawYSteps(context, yMaxData, canvasEndPoints, chartConfig);
       drawXStep(context);
     });
 
