@@ -199,7 +199,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   return (
     <div style={{ border: '1px solid gray', display: 'flex', flexDirection: 'column' }}>
       <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>
-      <Slider />
     </div>
   );
 }
