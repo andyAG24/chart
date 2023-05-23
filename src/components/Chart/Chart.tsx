@@ -21,16 +21,11 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
   const dpiViewHeight = viewHeight * dpiRatio;
   const dpiViewWidth = viewWidth * dpiRatio;
 
-  const canvasXStart = PADDING;
-  const canvasXEnd = dpiViewWidth - PADDING;
-  const canvasYStart = dpiViewHeight - PADDING;
-  const canvasYEnd = PADDING;
-
   const canvasEndPoints: CanvasEndPoints = {
-    xStart: canvasXStart,
-    xEnd: canvasXEnd,
-    yStart: canvasYStart,
-    yEnd: canvasYEnd,
+    xStart: PADDING,
+    xEnd: dpiViewWidth - PADDING,
+    yStart: dpiViewHeight - PADDING,
+    yEnd: PADDING,
   };
 
   const chartConfig: ChartConfig = {
@@ -62,9 +57,9 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
   const initAxis = (context: CanvasRenderingContext2D) =>
     drawPath(context, () => {
-      context.moveTo(canvasXStart, canvasYEnd);
-      context.lineTo(canvasXStart, canvasYStart);
-      context.lineTo(canvasXEnd, canvasYStart);
+      context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
+      context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
+      context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
       context.stroke();
 
       context.font = '24px mono';
@@ -117,6 +112,16 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     lines.forEach((lineData) => drawLine(context, lineData));
   };
 
+  const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
+    const { canvas } = getCanvasAndContext(canvasRef);
+
+    const clientRect = canvas?.getBoundingClientRect();
+    proxy.mouse = {
+      x: (clientX - (clientRect?.left || 0)) * dpiRatio,
+      y: clientY,
+    };
+  };
+
   const paint = useCallback(() => {
     const { canvas, context } = getCanvasAndContext(canvasRef);
 
@@ -130,16 +135,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
       drawChart(context);
     }
   }, [lines]);
-
-  const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
-    const { canvas } = getCanvasAndContext(canvasRef);
-
-    const clientRect = canvas?.getBoundingClientRect();
-    proxy.mouse = {
-      x: (clientX - (clientRect?.left || 0)) * dpiRatio,
-      y: clientY,
-    };
-  };
 
   useEffect(() => paint(), []);
 
