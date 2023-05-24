@@ -3,11 +3,11 @@ export interface Coord {
   y: number;
 }
 
-export interface ChartOptions {
+export interface ChartConfig {
   padding?: number;
   rowsCount?: number;
-  line?: {
-    width?: number;
+  pointer?: {
+    radius: number;
   };
 }
 

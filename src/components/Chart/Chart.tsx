@@ -2,19 +2,12 @@ import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
 import { drawXStep, drawYSteps, getCanvasAndContext, getMaxCoordValueByAxis, isOver } from './Chart.utils';
 import { drawPath } from '../../utils';
+import { defaultConfig } from './Chart.config';
 
-const defaultOptions: ChartOptions = {
-  padding: 0,
-  rowsCount: 5,
-  line: {
-    width: 2,
-  },
-};
-
-export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions, lines }: ChartProps) {
-  const ROWS_COUNT = options.rowsCount || 5;
-  const PADDING = options.padding || 0;
-  const POINTER_RADIUS = 5 * dpiRatio;
+export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultConfig, lines }: ChartProps) {
+  const ROWS_COUNT = config.rowsCount || defaultConfig.rowsCount;
+  const PADDING = config.padding || defaultConfig.padding;
+  const POINTER_RADIUS = (config.pointer?.radius || defaultConfig.pointer.radius) * dpiRatio;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
