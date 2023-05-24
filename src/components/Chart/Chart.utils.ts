@@ -1,4 +1,4 @@
-import { drawPath } from '../../utils';
+import { canvasPath } from '../../utils';
 import { CanvasEndPoints, ChartParameters, Line } from './Chart.types';
 
 export const getMaxCoordValueByAxis = (lines: Line[], axis: 'x' | 'y') =>
@@ -26,7 +26,7 @@ export const drawYSteps = (
   { xStart, xEnd }: CanvasEndPoints,
   { dpiViewHeight, padding: PADDING, rowsCount: ROWS_COUNT }: ChartParameters,
 ) =>
-  drawPath(context, () => {
+  canvasPath(context, () => {
     context.strokeStyle = '#dbdbdb';
 
     const stepY = (dpiViewHeight - 2 * PADDING) / ROWS_COUNT;
@@ -55,7 +55,7 @@ export const drawXStep = (
   { yStart, yEnd }: CanvasEndPoints,
   { padding: PADDING, dpiViewWidth }: ChartParameters,
 ) =>
-  drawPath(context, () => {
+  canvasPath(context, () => {
     context.strokeStyle = 'magenta';
 
     const coordsMaxCount = Math.max(...lines.map((line) => line.coords.length)) - 1;

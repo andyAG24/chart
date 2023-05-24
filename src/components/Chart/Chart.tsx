@@ -8,7 +8,7 @@ import {
   getMaxCoordValueByAxis,
   isOver,
 } from './Chart.utils';
-import { drawPath } from '../../utils';
+import { canvasPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
 
 export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultConfig, lines }: ChartProps) {
@@ -45,7 +45,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
   };
 
   const initAxis = (context: CanvasRenderingContext2D) =>
-    drawPath(context, () => {
+    canvasPath(context, () => {
       context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
       context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
       context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
@@ -66,7 +66,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     const getCanvasX = (x: number) => x + PADDING;
     const getCanvasY = (y: number) => dpiViewHeight - (y * yRatio + PADDING);
 
-    drawPath(context, () => {
+    canvasPath(context, () => {
       context.lineWidth = width;
       context.strokeStyle = color;
 
@@ -86,7 +86,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
   };
 
   const drawPointer = (context: CanvasRenderingContext2D, x: number, y: number, strokeColor: string) =>
-    drawPath(context, () => {
+    canvasPath(context, () => {
       context.strokeStyle = strokeColor;
       context.fillStyle = 'white';
       context.arc(x, y, POINTER_RADIUS, 0, Math.PI * 2);
