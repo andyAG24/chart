@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
-import { CanvasEndPoints, ChartConfig, ChartOptions, ChartProps, Line } from './Chart.types';
+import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
 import { drawXStep, drawYSteps, getCanvasAndContext, getMaxCoordValueByAxis, isOver } from './Chart.utils';
 import { drawPath } from '../../utils';
 
@@ -28,7 +28,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     yEnd: PADDING,
   };
 
-  const chartConfig: ChartConfig = {
+  const chartParameters: ChartParameters = {
     dpiViewHeight,
     dpiViewWidth,
     padding: PADDING,
@@ -65,8 +65,8 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
       context.font = '24px mono';
       context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
 
-      drawYSteps(context, yMaxData, canvasEndPoints, chartConfig);
-      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartConfig);
+      drawYSteps(context, yMaxData, canvasEndPoints, chartParameters);
+      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
     });
 
   const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {

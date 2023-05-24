@@ -21,8 +21,7 @@ export interface ChartProps {
   dpiRatio?: number;
   viewHeight: number;
   viewWidth: number;
-  options: ChartOptions;
-
+  config: ChartConfig;
   lines: Line[];
 }
 
@@ -32,7 +31,7 @@ export type CanvasEndPoints = {
   [x in CanvasEndPointsKey]: number;
 };
 
-export interface ChartConfig {
+export interface ChartParameters {
   rowsCount: number;
   dpiViewHeight: number;
   dpiViewWidth: number;
