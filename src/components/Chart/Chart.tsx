@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
 import {
-  drawXStep,
-  drawYSteps,
   getCanvasAndContext,
   getChartProxy,
   getMaxCoordValueByAxis,
@@ -11,6 +9,7 @@ import {
   getCanvasX,
   getCanvasY,
   drawPointer,
+  drawAxis,
 } from './Chart.utils';
 import { canvasPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
@@ -43,20 +42,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     rowsCount: ROWS_COUNT,
     yRatio,
   };
-
-  const initAxis = (context: CanvasRenderingContext2D) =>
-    canvasPath(context, () => {
-      context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
-      context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
-      context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
-      context.stroke();
-
-      context.font = '24px mono';
-      context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
-
-      drawYSteps(context, yMaxData, canvasEndPoints, chartParameters);
-      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
-    });
 
   const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
     const { coords, color, width } = lineData;
@@ -103,7 +88,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     if (context) {
       context.clearRect(0, 0, dpiViewWidth, dpiViewHeight);
 
-      initAxis(context);
+      drawAxis(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
 
       lines.forEach((lineData) => drawLine(context, lineData));
     }
