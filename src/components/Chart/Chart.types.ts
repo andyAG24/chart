@@ -25,3 +25,16 @@ export interface ChartProps {
 
   lines: Line[];
 }
+
+type CanvasEndPointsKey = 'xStart' | 'xEnd' | 'yStart' | 'yEnd';
+
+export type CanvasEndPoints = {
+  [x in CanvasEndPointsKey]: number;
+};
+
+export interface ChartConfig {
+  rowsCount: number;
+  dpiViewHeight: number;
+  dpiViewWidth: number;
+  padding: number;
+}
