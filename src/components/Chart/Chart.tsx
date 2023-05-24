@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
-import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
+import { CanvasEndPoints, ChartParameters, ChartProps } from './Chart.types';
 import {
   getCanvasAndContext,
   getChartProxy,
@@ -67,9 +67,5 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
 
   useEffect(() => paint(), []);
 
-  return (
-    <div style={{ border: '1px solid gray', display: 'flex', flexDirection: 'column' }}>
-      <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>
-    </div>
-  );
+  return <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>;
 }
