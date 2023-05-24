@@ -1,6 +1,8 @@
 import { canvasPath } from '../../utils';
 import { CanvasEndPoints, ChartParameters, Coord, Line, PointerParameters } from './Chart.types';
 
+// GET UTILITIES
+
 export const getMaxCoordValueByAxis = (lines: Line[], axis: 'x' | 'y') =>
   Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord[axis]))));
 
@@ -15,10 +17,30 @@ export const getCanvasAndContext = (
   return { canvas, context };
 };
 
+export const getChartProxy = (cb: () => void) =>
+  new Proxy<{ mouse: { x: number; y: number } }>(
+    { mouse: { x: 0, y: 0 } },
+    {
+      set(...args) {
+        const result = Reflect.set(...args);
+        requestAnimationFrame(cb);
+        return result;
+      },
+    },
+  );
+
+export const getCanvasX = (x: number, { padding }: ChartParameters) => x + padding;
+export const getCanvasY = (y: number, { dpiViewHeight, padding, yRatio }: ChartParameters) =>
+  dpiViewHeight - (y * yRatio + padding);
+
+// CHECKERS
+
 export const isOver = (x: number, mouseX: number, length: number, dpiViewWidth: number) => {
   const width = dpiViewWidth / length;
   return Math.abs(x - mouseX) < width / 2;
 };
+
+// DRAWING UTILITIES
 
 export const drawYSteps = (
   context: CanvasRenderingContext2D,
@@ -84,29 +106,6 @@ export const drawXStep = (
     context.stroke();
   });
 
-export const getChartProxy = (cb: () => void) =>
-  new Proxy<{ mouse: { x: number; y: number } }>(
-    { mouse: { x: 0, y: 0 } },
-    {
-      set(...args) {
-        const result = Reflect.set(...args);
-        requestAnimationFrame(cb);
-        return result;
-      },
-    },
-  );
-
-export const setupCanvasDimensions = (canvas: HTMLCanvasElement, height: number, width: number, dpiRatio: number) => {
-  canvas.style.height = height + 'px';
-  canvas.style.width = width + 'px';
-  canvas.height = height * dpiRatio;
-  canvas.width = width * dpiRatio;
-};
-
-export const getCanvasX = (x: number, { padding }: ChartParameters) => x + padding;
-export const getCanvasY = (y: number, { dpiViewHeight, padding, yRatio }: ChartParameters) =>
-  dpiViewHeight - (y * yRatio + padding);
-
 export const drawPointer = (
   context: CanvasRenderingContext2D,
   { x, y }: Coord,
@@ -119,3 +118,12 @@ export const drawPointer = (
     context.fill();
     context.stroke();
   });
+
+// OTHER UTILITIES
+
+export const setupCanvasDimensions = (canvas: HTMLCanvasElement, height: number, width: number, dpiRatio: number) => {
+  canvas.style.height = height + 'px';
+  canvas.style.width = width + 'px';
+  canvas.height = height * dpiRatio;
+  canvas.width = width * dpiRatio;
+};
