@@ -3,26 +3,10 @@ export interface Coord {
   y: number;
 }
 
-export interface ChartConfig {
-  padding?: number;
-  rowsCount?: number;
-  pointer?: {
-    radius: number;
-  };
-}
-
 export interface Line {
   color: string;
   width: number;
   coords: Coord[];
-}
-
-export interface ChartProps {
-  dpiRatio?: number;
-  viewHeight: number;
-  viewWidth: number;
-  config: ChartConfig;
-  lines: Line[];
 }
 
 type CanvasEndPointsKey = 'xStart' | 'xEnd' | 'yStart' | 'yEnd';
@@ -31,16 +15,30 @@ export type CanvasEndPoints = {
   [x in CanvasEndPointsKey]: number;
 };
 
-export interface ChartParameters {
-  rowsCount: number;
-  dpiViewHeight: number;
-  dpiViewWidth: number;
-  padding: number;
-  yRatio: number;
-}
-
 export interface PointerParameters {
   color: string;
   fillColor: string;
   radius: number;
+}
+
+export interface ChartConfig {
+  padding?: number;
+  rowsCount?: number;
+  pointer?: {
+    radius: number;
+  };
+}
+
+export interface ChartParameters extends Required<Omit<ChartConfig, 'pointer'>> {
+  dpiViewHeight: number;
+  dpiViewWidth: number;
+  yRatio: number;
+}
+
+export interface ChartProps {
+  dpiRatio?: number;
+  viewHeight: number;
+  viewWidth: number;
+  config: ChartConfig;
+  lines: Line[];
 }
