@@ -94,10 +94,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
       context.stroke();
     });
 
-  const drawChart = (context: CanvasRenderingContext2D) => {
-    lines.forEach((lineData) => drawLine(context, lineData));
-  };
-
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
     const { canvas } = getCanvasAndContext(canvasRef);
 
@@ -118,7 +114,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
 
       initAxis(context);
 
-      drawChart(context);
+      lines.forEach((lineData) => drawLine(context, lineData));
     }
   }, [lines]);
 
