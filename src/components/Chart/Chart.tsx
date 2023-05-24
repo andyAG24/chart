@@ -5,13 +5,9 @@ import {
   getChartProxy,
   getMaxCoordValueByAxis,
   setupCanvasDimensions,
-  isOver,
-  getCanvasX,
-  getCanvasY,
-  drawPointer,
   drawAxis,
+  drawLine,
 } from './Chart.utils';
-import { canvasPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
 
 export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultConfig, lines }: ChartProps) {
@@ -43,33 +39,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     yRatio,
   };
 
-  const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
-    const { coords, color, width } = lineData;
-
-    canvasPath(context, () => {
-      context.lineWidth = width;
-      context.strokeStyle = color;
-
-      coords.forEach(({ x, y }) => {
-        context.lineTo(getCanvasX(x, chartParameters), getCanvasY(y, chartParameters));
-      });
-      context.stroke();
-    });
-
-    coords.forEach(({ x, y }) => {
-      const canvasX = getCanvasX(x, chartParameters);
-      if (isOver(canvasX, proxy.mouse.x, coords.length, dpiViewWidth)) {
-        context.save();
-        drawPointer(
-          context,
-          { x: canvasX, y: getCanvasY(y, chartParameters) },
-          { color, fillColor: 'white', radius: POINTER_RADIUS },
-        );
-        context.restore();
-      }
-    });
-  };
-
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
     const { canvas } = getCanvasAndContext(canvasRef);
 
@@ -90,7 +59,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
 
       drawAxis(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
 
-      lines.forEach((lineData) => drawLine(context, lineData));
+      lines.forEach((lineData) => drawLine(context, lineData, proxy.mouse.x, chartParameters, POINTER_RADIUS));
     }
   }, [lines]);
 

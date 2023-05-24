@@ -129,6 +129,39 @@ export const drawAxis = (
   });
 };
 
+export const drawLine = (
+  context: CanvasRenderingContext2D,
+  line: Line,
+  mouseX: number,
+  chartParameters: ChartParameters,
+  pointerRadius: number,
+) => {
+  const { coords, color, width } = line;
+
+  canvasPath(context, () => {
+    context.lineWidth = width;
+    context.strokeStyle = color;
+
+    coords.forEach(({ x, y }) => {
+      context.lineTo(getCanvasX(x, chartParameters), getCanvasY(y, chartParameters));
+    });
+    context.stroke();
+  });
+
+  coords.forEach(({ x, y }) => {
+    const canvasX = getCanvasX(x, chartParameters);
+    if (isOver(canvasX, mouseX, coords.length, chartParameters.dpiViewWidth)) {
+      context.save();
+      drawPointer(
+        context,
+        { x: canvasX, y: getCanvasY(y, chartParameters) },
+        { color, fillColor: 'white', radius: pointerRadius },
+      );
+      context.restore();
+    }
+  });
+};
+
 export const drawPointer = (
   context: CanvasRenderingContext2D,
   { x, y }: Coord,
