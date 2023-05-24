@@ -74,26 +74,23 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
     const { coords, color, width } = lineData;
 
+    const getCanvasX = (x: number) => x + PADDING;
+    const getCanvasY = (y: number) => dpiViewHeight - (y * yRatio + PADDING);
+
     drawPath(context, () => {
       context.lineWidth = width;
       context.strokeStyle = color;
 
       coords.forEach((coord) => {
-        const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
-        const canvasX = coord.x + PADDING;
-
-        context.lineTo(canvasX, canvasY);
+        context.lineTo(getCanvasX(coord.x), getCanvasY(coord.y));
       });
       context.stroke();
     });
 
     coords.forEach((coord) => {
-      const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
-      const canvasX = coord.x + PADDING;
-
-      if (isOver(canvasX, proxy.mouse.x, coords.length, dpiViewWidth)) {
+      if (isOver(getCanvasX(coord.x), proxy.mouse.x, coords.length, dpiViewWidth)) {
         context.save();
-        drawPointer(context, canvasX, canvasY, color);
+        drawPointer(context, getCanvasX(coord.x), getCanvasY(coord.y), color);
         context.restore();
       }
     });
