@@ -1,5 +1,5 @@
 import { canvasPath } from '../../utils';
-import { CanvasEndPoints, ChartParameters, Line } from './Chart.types';
+import { CanvasEndPoints, ChartParameters, Coord, Line, PointerParameters } from './Chart.types';
 
 export const getMaxCoordValueByAxis = (lines: Line[], axis: 'x' | 'y') =>
   Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord[axis]))));
@@ -102,3 +102,20 @@ export const setupCanvasDimensions = (canvas: HTMLCanvasElement, height: number,
   canvas.height = height * dpiRatio;
   canvas.width = width * dpiRatio;
 };
+
+export const getCanvasX = (x: number, { padding }: ChartParameters) => x + padding;
+export const getCanvasY = (y: number, { dpiViewHeight, padding, yRatio }: ChartParameters) =>
+  dpiViewHeight - (y * yRatio + padding);
+
+export const drawPointer = (
+  context: CanvasRenderingContext2D,
+  { x, y }: Coord,
+  { color, fillColor, radius }: PointerParameters,
+) =>
+  canvasPath(context, () => {
+    context.strokeStyle = color;
+    context.fillStyle = fillColor;
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+  });

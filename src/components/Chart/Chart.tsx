@@ -8,6 +8,9 @@ import {
   getMaxCoordValueByAxis,
   setupCanvasDimensions,
   isOver,
+  getCanvasX,
+  getCanvasY,
+  drawPointer,
 } from './Chart.utils';
 import { canvasPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
@@ -29,14 +32,17 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     yEnd: PADDING,
   };
 
+  const yMaxData = getMaxCoordValueByAxis(lines, 'y');
+
+  const yRatio = (dpiViewHeight - 2 * PADDING) / yMaxData;
+
   const chartParameters: ChartParameters = {
     dpiViewHeight,
     dpiViewWidth,
     padding: PADDING,
     rowsCount: ROWS_COUNT,
+    yRatio,
   };
-
-  const yMaxData = getMaxCoordValueByAxis(lines, 'y');
 
   const initAxis = (context: CanvasRenderingContext2D) =>
     canvasPath(context, () => {
@@ -53,40 +59,31 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     });
 
   const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
-    const yRatio = (dpiViewHeight - 2 * PADDING) / yMaxData;
-
     const { coords, color, width } = lineData;
-
-    const getCanvasX = (x: number) => x + PADDING;
-    const getCanvasY = (y: number) => dpiViewHeight - (y * yRatio + PADDING);
 
     canvasPath(context, () => {
       context.lineWidth = width;
       context.strokeStyle = color;
 
-      coords.forEach((coord) => {
-        context.lineTo(getCanvasX(coord.x), getCanvasY(coord.y));
+      coords.forEach(({ x, y }) => {
+        context.lineTo(getCanvasX(x, chartParameters), getCanvasY(y, chartParameters));
       });
       context.stroke();
     });
 
-    coords.forEach((coord) => {
-      if (isOver(getCanvasX(coord.x), proxy.mouse.x, coords.length, dpiViewWidth)) {
+    coords.forEach(({ x, y }) => {
+      const canvasX = getCanvasX(x, chartParameters);
+      if (isOver(canvasX, proxy.mouse.x, coords.length, dpiViewWidth)) {
         context.save();
-        drawPointer(context, getCanvasX(coord.x), getCanvasY(coord.y), color);
+        drawPointer(
+          context,
+          { x: canvasX, y: getCanvasY(y, chartParameters) },
+          { color, fillColor: 'white', radius: POINTER_RADIUS },
+        );
         context.restore();
       }
     });
   };
-
-  const drawPointer = (context: CanvasRenderingContext2D, x: number, y: number, strokeColor: string) =>
-    canvasPath(context, () => {
-      context.strokeStyle = strokeColor;
-      context.fillStyle = 'white';
-      context.arc(x, y, POINTER_RADIUS, 0, Math.PI * 2);
-      context.fill();
-      context.stroke();
-    });
 
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
     const { canvas } = getCanvasAndContext(canvasRef);
