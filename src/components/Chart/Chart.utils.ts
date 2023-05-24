@@ -95,3 +95,10 @@ export const getChartProxy = (cb: () => void) =>
       },
     },
   );
+
+export const setupCanvasDimensions = (canvas: HTMLCanvasElement, height: number, width: number, dpiRatio: number) => {
+  canvas.style.height = height + 'px';
+  canvas.style.width = width + 'px';
+  canvas.height = height * dpiRatio;
+  canvas.width = width * dpiRatio;
+};

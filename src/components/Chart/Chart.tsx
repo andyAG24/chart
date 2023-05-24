@@ -6,6 +6,7 @@ import {
   getCanvasAndContext,
   getChartProxy,
   getMaxCoordValueByAxis,
+  setupCanvasDimensions,
   isOver,
 } from './Chart.utils';
 import { canvasPath } from '../../utils';
@@ -36,13 +37,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
   };
 
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
-
-  const initCanvas = (initialCanvas: HTMLCanvasElement) => {
-    initialCanvas.style.height = viewHeight + 'px';
-    initialCanvas.style.width = viewWidth + 'px';
-    initialCanvas.height = dpiViewHeight;
-    initialCanvas.width = dpiViewWidth;
-  };
 
   const initAxis = (context: CanvasRenderingContext2D) =>
     canvasPath(context, () => {
@@ -107,7 +101,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
   const paint = useCallback(() => {
     const { canvas, context } = getCanvasAndContext(canvasRef);
 
-    canvas && initCanvas(canvas);
+    canvas && setupCanvasDimensions(canvas, viewHeight, viewWidth, dpiRatio);
 
     if (context) {
       context.clearRect(0, 0, dpiViewWidth, dpiViewHeight);
