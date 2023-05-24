@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
 import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
-import { drawXStep, drawYSteps, getCanvasAndContext, getMaxCoordValueByAxis, isOver } from './Chart.utils';
+import {
+  drawXStep,
+  drawYSteps,
+  getCanvasAndContext,
+  getChartProxy,
+  getMaxCoordValueByAxis,
+  isOver,
+} from './Chart.utils';
 import { drawPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
 
@@ -27,17 +34,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     padding: PADDING,
     rowsCount: ROWS_COUNT,
   };
-
-  const proxy = new Proxy<{ mouse: { x: number; y: number } }>(
-    { mouse: { x: 0, y: 0 } },
-    {
-      set(...args) {
-        const result = Reflect.set(...args);
-        requestAnimationFrame(paint);
-        return result;
-      },
-    },
-  );
 
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
 
@@ -125,6 +121,8 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
       drawChart(context);
     }
   }, [lines]);
+
+  const proxy = getChartProxy(paint);
 
   useEffect(() => paint(), []);
 

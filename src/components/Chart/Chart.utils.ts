@@ -83,3 +83,15 @@ export const drawXStep = (
 
     context.stroke();
   });
+
+export const getChartProxy = (cb: () => void) =>
+  new Proxy<{ mouse: { x: number; y: number } }>(
+    { mouse: { x: 0, y: 0 } },
+    {
+      set(...args) {
+        const result = Reflect.set(...args);
+        requestAnimationFrame(cb);
+        return result;
+      },
+    },
+  );
