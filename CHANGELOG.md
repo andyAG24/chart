@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.1.3 - 2023-05-24
+
+### Changed
+- [Chart] refactoring of drawLine()
+- [Chart] props renamed: options &#8594; config
+- [Chart.types] renamed 
+    1. ChartConfig &#8594; ChartParameters
+    2. ChartOptions &#8594; ChartConfig
+- [Chart] defaultConfig moved into separate file
+- [Chart] updated story
+
+### Removed
+- [Chart] constants canvasXStart, canvasXEnd, canvasYStart, canvasYEnd
+
+- [Chart.types] removed prop "line" from ChartConfig
+
 ## 0.1.2 - 2023-05-23
 
 ### BREAKING CHANGES
