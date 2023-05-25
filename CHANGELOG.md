@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.7 - 2023-05-26
+
+### Added
+- [Chart] xRatio
+- [Chart.utils] dynamic squeezing and stretching of chart by x axis
+
+### Changed
+- [Chart] now you shouldn't move mouse over chart for its update if lines was changed
+
 ## 0.1.6 - 2023-05-25
 - package.json
 
