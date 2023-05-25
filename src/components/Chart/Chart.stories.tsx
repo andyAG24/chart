@@ -13,6 +13,6 @@ type Story = StoryObj<typeof Chart>;
 
 export const Main: Story = {
   render: () => (
-    <Chart viewHeight={250} viewWidth={500} dpiRatio={2} options={{ padding: 50, rowsCount: 5 }} lines={LinesMock} />
+    <Chart viewHeight={250} viewWidth={500} dpiRatio={2} config={{ padding: 50, rowsCount: 5 }} lines={LinesMock} />
   ),
 };

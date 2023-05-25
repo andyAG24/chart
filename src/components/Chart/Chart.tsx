@@ -1,55 +1,39 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
-import { CanvasEndPoints, ChartConfig, ChartOptions, ChartProps, Line } from './Chart.types';
-import { drawXStep, drawYSteps, getCanvasAndContext, getMaxCoordValueByAxis, isOver } from './Chart.utils';
+import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
+import {
+  drawXStep,
+  drawYSteps,
+  getCanvasAndContext,
+  getChartProxy,
+  getMaxCoordValueByAxis,
+  isOver,
+} from './Chart.utils';
 import { drawPath } from '../../utils';
+import { defaultConfig } from './Chart.config';
 
-const defaultOptions: ChartOptions = {
-  padding: 0,
-  rowsCount: 5,
-  line: {
-    width: 2,
-  },
-};
-
-export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOptions, lines }: ChartProps) {
-  const ROWS_COUNT = options.rowsCount || 5;
-  const PADDING = options.padding || 0;
-  const POINTER_RADIUS = 5 * dpiRatio;
+export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultConfig, lines }: ChartProps) {
+  const ROWS_COUNT = config.rowsCount || defaultConfig.rowsCount;
+  const PADDING = config.padding || defaultConfig.padding;
+  const POINTER_RADIUS = (config.pointer?.radius || defaultConfig.pointer.radius) * dpiRatio;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const dpiViewHeight = viewHeight * dpiRatio;
   const dpiViewWidth = viewWidth * dpiRatio;
 
-  const canvasXStart = PADDING;
-  const canvasXEnd = dpiViewWidth - PADDING;
-  const canvasYStart = dpiViewHeight - PADDING;
-  const canvasYEnd = PADDING;
-
   const canvasEndPoints: CanvasEndPoints = {
-    xStart: canvasXStart,
-    xEnd: canvasXEnd,
-    yStart: canvasYStart,
-    yEnd: canvasYEnd,
+    xStart: PADDING,
+    xEnd: dpiViewWidth - PADDING,
+    yStart: dpiViewHeight - PADDING,
+    yEnd: PADDING,
   };
 
-  const chartConfig: ChartConfig = {
+  const chartParameters: ChartParameters = {
     dpiViewHeight,
     dpiViewWidth,
     padding: PADDING,
     rowsCount: ROWS_COUNT,
   };
-
-  const proxy = new Proxy<{ mouse: { x: number; y: number } }>(
-    { mouse: { x: 0, y: 0 } },
-    {
-      set(...args) {
-        const result = Reflect.set(...args);
-        requestAnimationFrame(paint);
-        return result;
-      },
-    },
-  );
 
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
 
@@ -62,16 +46,16 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
   const initAxis = (context: CanvasRenderingContext2D) =>
     drawPath(context, () => {
-      context.moveTo(canvasXStart, canvasYEnd);
-      context.lineTo(canvasXStart, canvasYStart);
-      context.lineTo(canvasXEnd, canvasYStart);
+      context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
+      context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
+      context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
       context.stroke();
 
       context.font = '24px mono';
       context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
 
-      drawYSteps(context, yMaxData, canvasEndPoints, chartConfig);
-      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartConfig);
+      drawYSteps(context, yMaxData, canvasEndPoints, chartParameters);
+      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
     });
 
   const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
@@ -79,26 +63,23 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
 
     const { coords, color, width } = lineData;
 
+    const getCanvasX = (x: number) => x + PADDING;
+    const getCanvasY = (y: number) => dpiViewHeight - (y * yRatio + PADDING);
+
     drawPath(context, () => {
       context.lineWidth = width;
       context.strokeStyle = color;
 
       coords.forEach((coord) => {
-        const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
-        const canvasX = coord.x + PADDING;
-
-        context.lineTo(canvasX, canvasY);
+        context.lineTo(getCanvasX(coord.x), getCanvasY(coord.y));
       });
       context.stroke();
     });
 
     coords.forEach((coord) => {
-      const canvasY = dpiViewHeight - (coord.y * yRatio + PADDING);
-      const canvasX = coord.x + PADDING;
-
-      if (isOver(canvasX, proxy.mouse.x, coords.length, dpiViewWidth)) {
+      if (isOver(getCanvasX(coord.x), proxy.mouse.x, coords.length, dpiViewWidth)) {
         context.save();
-        drawPointer(context, canvasX, canvasY, color);
+        drawPointer(context, getCanvasX(coord.x), getCanvasY(coord.y), color);
         context.restore();
       }
     });
@@ -117,6 +98,16 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     lines.forEach((lineData) => drawLine(context, lineData));
   };
 
+  const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
+    const { canvas } = getCanvasAndContext(canvasRef);
+
+    const clientRect = canvas?.getBoundingClientRect();
+    proxy.mouse = {
+      x: (clientX - (clientRect?.left || 0)) * dpiRatio,
+      y: clientY,
+    };
+  };
+
   const paint = useCallback(() => {
     const { canvas, context } = getCanvasAndContext(canvasRef);
 
@@ -131,15 +122,7 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, options = defaultOp
     }
   }, [lines]);
 
-  const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
-    const { canvas } = getCanvasAndContext(canvasRef);
-
-    const clientRect = canvas?.getBoundingClientRect();
-    proxy.mouse = {
-      x: (clientX - (clientRect?.left || 0)) * dpiRatio,
-      y: clientY,
-    };
-  };
+  const proxy = getChartProxy(paint);
 
   useEffect(() => paint(), []);
 
