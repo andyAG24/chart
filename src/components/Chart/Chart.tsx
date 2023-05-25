@@ -70,6 +70,8 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
 
   const proxy = getChartProxy(paint);
 
+  useEffect(() => paint(), [lines]);
+
   useEffect(() => paint(), []);
 
   return <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>;
