@@ -3,11 +3,11 @@ export interface Coord {
   y: number;
 }
 
-export interface ChartOptions {
+export interface ChartConfig {
   padding?: number;
   rowsCount?: number;
-  line?: {
-    width?: number;
+  pointer?: {
+    radius: number;
   };
 }
 
@@ -21,8 +21,7 @@ export interface ChartProps {
   dpiRatio?: number;
   viewHeight: number;
   viewWidth: number;
-  options: ChartOptions;
-
+  config: ChartConfig;
   lines: Line[];
 }
 
@@ -32,7 +31,7 @@ export type CanvasEndPoints = {
   [x in CanvasEndPointsKey]: number;
 };
 
-export interface ChartConfig {
+export interface ChartParameters {
   rowsCount: number;
   dpiViewHeight: number;
   dpiViewWidth: number;

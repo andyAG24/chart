@@ -1,5 +1,5 @@
 import { drawPath } from '../../utils';
-import { CanvasEndPoints, ChartConfig, Line } from './Chart.types';
+import { CanvasEndPoints, ChartParameters, Line } from './Chart.types';
 
 export const getMaxCoordValueByAxis = (lines: Line[], axis: 'x' | 'y') =>
   Math.max(...lines.map((line) => Math.max(...line.coords.map((coord) => coord[axis]))));
@@ -24,7 +24,7 @@ export const drawYSteps = (
   context: CanvasRenderingContext2D,
   yMax: number,
   { xStart, xEnd }: CanvasEndPoints,
-  { dpiViewHeight, padding: PADDING, rowsCount: ROWS_COUNT }: ChartConfig,
+  { dpiViewHeight, padding: PADDING, rowsCount: ROWS_COUNT }: ChartParameters,
 ) =>
   drawPath(context, () => {
     context.strokeStyle = '#dbdbdb';
@@ -53,7 +53,7 @@ export const drawXStep = (
   lines: Line[],
   mouseX: number,
   { yStart, yEnd }: CanvasEndPoints,
-  { padding: PADDING, dpiViewWidth }: ChartConfig,
+  { padding: PADDING, dpiViewWidth }: ChartParameters,
 ) =>
   drawPath(context, () => {
     context.strokeStyle = 'magenta';
@@ -83,3 +83,15 @@ export const drawXStep = (
 
     context.stroke();
   });
+
+export const getChartProxy = (cb: () => void) =>
+  new Proxy<{ mouse: { x: number; y: number } }>(
+    { mouse: { x: 0, y: 0 } },
+    {
+      set(...args) {
+        const result = Reflect.set(...args);
+        requestAnimationFrame(cb);
+        return result;
+      },
+    },
+  );
