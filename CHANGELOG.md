@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.6 - 2023-05-25
+- package.json
+
+### Fixed
+- build
+
 ## 0.1.5 - 2023-05-25
 
 ### Changed
