@@ -30,8 +30,8 @@ export const getChartProxy = (cb: () => void) =>
   );
 
 export const getCanvasX = (x: number, { padding }: ChartParameters) => x + padding;
-export const getCanvasY = (y: number, { dpiViewHeight, padding, yRatio }: ChartParameters) =>
-  dpiViewHeight - (y * yRatio + padding);
+export const getCanvasY = (y: number, { dpiViewHeight, padding, ratio }: ChartParameters) =>
+  dpiViewHeight - (y * ratio.y + padding);
 
 // CHECKERS
 

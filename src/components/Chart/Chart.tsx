@@ -27,8 +27,10 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     yEnd: PADDING,
   };
 
+  const xMaxData = getMaxCoordValueByAxis(lines, 'x');
   const yMaxData = getMaxCoordValueByAxis(lines, 'y');
 
+  const xRatio = (dpiViewWidth - 2 * PADDING) / xMaxData;
   const yRatio = (dpiViewHeight - 2 * PADDING) / yMaxData;
 
   const chartParameters: ChartParameters = {
@@ -36,7 +38,10 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     dpiViewWidth,
     padding: PADDING,
     rowsCount: ROWS_COUNT,
-    yRatio,
+    ratio: {
+      x: xRatio,
+      y: yRatio,
+    },
   };
 
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
