@@ -42,7 +42,7 @@ export const isOver = (x: number, mouseX: number, length: number, dpiViewWidth: 
 
 // DRAWING UTILITIES
 
-export const drawYSteps = (
+const drawYSteps = (
   context: CanvasRenderingContext2D,
   yMax: number,
   { xStart, xEnd }: CanvasEndPoints,
@@ -70,7 +70,7 @@ export const drawYSteps = (
     context.stroke();
   });
 
-export const drawXStep = (
+const drawXStep = (
   context: CanvasRenderingContext2D,
   lines: Line[],
   mouseX: number,
@@ -105,6 +105,62 @@ export const drawXStep = (
 
     context.stroke();
   });
+
+export const drawAxis = (
+  context: CanvasRenderingContext2D,
+  lines: Line[],
+  mouseX: number,
+  canvasEndPoints: CanvasEndPoints,
+  chartParameters: ChartParameters,
+) => {
+  const yMaxData = getMaxCoordValueByAxis(lines, 'y');
+
+  return canvasPath(context, () => {
+    context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
+    context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
+    context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
+    context.stroke();
+
+    context.font = '24px mono';
+    context.fillText('0', chartParameters.dpiViewWidth - 16, chartParameters.dpiViewWidth + 16);
+
+    drawYSteps(context, yMaxData, canvasEndPoints, chartParameters);
+    drawXStep(context, lines, mouseX, canvasEndPoints, chartParameters);
+  });
+};
+
+export const drawLine = (
+  context: CanvasRenderingContext2D,
+  line: Line,
+  mouseX: number,
+  chartParameters: ChartParameters,
+  pointerRadius: number,
+) => {
+  const { coords, color, width } = line;
+
+  canvasPath(context, () => {
+    context.lineWidth = width;
+    context.strokeStyle = color;
+
+    coords.forEach(({ x, y }) => {
+      context.lineTo(getCanvasX(x, chartParameters), getCanvasY(y, chartParameters));
+    });
+    context.stroke();
+  });
+
+  coords.forEach(({ x, y }) => {
+    const canvasX = getCanvasX(x, chartParameters);
+    if (isOver(canvasX, mouseX, coords.length, chartParameters.dpiViewWidth)) {
+      context.save();
+      drawPointer(
+        context,
+        { x: canvasX, y: getCanvasY(y, chartParameters) },
+        { color, fillColor: 'white', radius: pointerRadius },
+      );
+      context.restore();
+    }
+  });
+};
 
 export const drawPointer = (
   context: CanvasRenderingContext2D,

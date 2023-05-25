@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.1.5 - 2023-05-25
+
+### Changed
+- [Chart] renamed initAxis &#8594; drawAxis and moved into Chart.utils
+- [Chart] drawLine() moved into Chart.utils
+- [Chart.types] some refactoring
+
+### Removed
+- [Chart] unnecessary div from component layout
+
 ## 0.1.4 - 2023-05-25
 
 ### Added
