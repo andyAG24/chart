@@ -36,4 +36,11 @@ export interface ChartParameters {
   dpiViewHeight: number;
   dpiViewWidth: number;
   padding: number;
+  yRatio: number;
+}
+
+export interface PointerParameters {
+  color: string;
+  fillColor: string;
+  radius: number;
 }
