@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.1.4 - 2023-05-25
+
+### Added
+- [Chart.types] interface PointerParameter
+- [Chart.utils] separate comments for more lightly understanding
+
+### Changed
+- [Chart] renamed initCanvas &#8594; setupCanvasDimensions and moved into Chart.utils
+- [Chart] drawPointer() moved into Chart.utils
+- [Chart] getCanvasX(), getCanvasY() moved into Chart.utils
+- [Chart.types] new field in ChartParameters - yRatio
+
+- [utils] renamed drawPath &#8594; canvasPath
+
+### Removed
+- [Chart] drawChart()
+
 ## 0.1.3 - 2023-05-24
 
 ### Changed
