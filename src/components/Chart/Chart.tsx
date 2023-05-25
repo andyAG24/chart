@@ -1,18 +1,13 @@
 import React, { useEffect, useRef, MouseEvent, useCallback } from 'react';
-import { CanvasEndPoints, ChartParameters, ChartProps, Line } from './Chart.types';
+import { CanvasEndPoints, ChartParameters, ChartProps } from './Chart.types';
 import {
-  drawXStep,
-  drawYSteps,
   getCanvasAndContext,
   getChartProxy,
   getMaxCoordValueByAxis,
   setupCanvasDimensions,
-  isOver,
-  getCanvasX,
-  getCanvasY,
-  drawPointer,
+  drawAxis,
+  drawLine,
 } from './Chart.utils';
-import { canvasPath } from '../../utils';
 import { defaultConfig } from './Chart.config';
 
 export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultConfig, lines }: ChartProps) {
@@ -44,47 +39,6 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     yRatio,
   };
 
-  const initAxis = (context: CanvasRenderingContext2D) =>
-    canvasPath(context, () => {
-      context.moveTo(canvasEndPoints.xStart, canvasEndPoints.yEnd);
-      context.lineTo(canvasEndPoints.xStart, canvasEndPoints.yStart);
-      context.lineTo(canvasEndPoints.xEnd, canvasEndPoints.yStart);
-      context.stroke();
-
-      context.font = '24px mono';
-      context.fillText('0', dpiViewWidth - 16, dpiViewWidth + 16);
-
-      drawYSteps(context, yMaxData, canvasEndPoints, chartParameters);
-      drawXStep(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
-    });
-
-  const drawLine = (context: CanvasRenderingContext2D, lineData: Line) => {
-    const { coords, color, width } = lineData;
-
-    canvasPath(context, () => {
-      context.lineWidth = width;
-      context.strokeStyle = color;
-
-      coords.forEach(({ x, y }) => {
-        context.lineTo(getCanvasX(x, chartParameters), getCanvasY(y, chartParameters));
-      });
-      context.stroke();
-    });
-
-    coords.forEach(({ x, y }) => {
-      const canvasX = getCanvasX(x, chartParameters);
-      if (isOver(canvasX, proxy.mouse.x, coords.length, dpiViewWidth)) {
-        context.save();
-        drawPointer(
-          context,
-          { x: canvasX, y: getCanvasY(y, chartParameters) },
-          { color, fillColor: 'white', radius: POINTER_RADIUS },
-        );
-        context.restore();
-      }
-    });
-  };
-
   const mouseMoveHandler = ({ clientX, clientY }: MouseEvent) => {
     const { canvas } = getCanvasAndContext(canvasRef);
 
@@ -103,9 +57,9 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
     if (context) {
       context.clearRect(0, 0, dpiViewWidth, dpiViewHeight);
 
-      initAxis(context);
+      drawAxis(context, lines, proxy.mouse.x, canvasEndPoints, chartParameters);
 
-      lines.forEach((lineData) => drawLine(context, lineData));
+      lines.forEach((lineData) => drawLine(context, lineData, proxy.mouse.x, chartParameters, POINTER_RADIUS));
     }
   }, [lines]);
 
@@ -113,9 +67,5 @@ export function Chart({ dpiRatio = 1, viewHeight, viewWidth, config = defaultCon
 
   useEffect(() => paint(), []);
 
-  return (
-    <div style={{ border: '1px solid gray', display: 'flex', flexDirection: 'column' }}>
-      <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>
-    </div>
-  );
+  return <canvas ref={canvasRef} onMouseMove={mouseMoveHandler}></canvas>;
 }
