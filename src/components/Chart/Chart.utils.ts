@@ -29,9 +29,9 @@ export const getChartProxy = (cb: () => void) =>
     },
   );
 
-export const getCanvasX = (x: number, { padding }: ChartParameters) => x + padding;
-export const getCanvasY = (y: number, { dpiViewHeight, padding, yRatio }: ChartParameters) =>
-  dpiViewHeight - (y * yRatio + padding);
+export const getCanvasX = (x: number, { padding, ratio }: ChartParameters) => x * ratio.x + padding;
+export const getCanvasY = (y: number, { dpiViewHeight, padding, ratio }: ChartParameters) =>
+  dpiViewHeight - (y * ratio.y + padding);
 
 // CHECKERS
 
@@ -75,7 +75,7 @@ const drawXStep = (
   lines: Line[],
   mouseX: number,
   { yStart, yEnd }: CanvasEndPoints,
-  { padding: PADDING, dpiViewWidth }: ChartParameters,
+  chartParameters: ChartParameters,
 ) =>
   canvasPath(context, () => {
     context.strokeStyle = 'magenta';
@@ -89,9 +89,9 @@ const drawXStep = (
 
     for (let index = 1; index <= allXValues.size; index++) {
       const x = iterator.next().value;
-      const canvasX = x + PADDING;
+      const canvasX = getCanvasX(x, chartParameters);
 
-      if (isOver(canvasX, mouseX, coordsMaxCount, dpiViewWidth)) {
+      if (isOver(canvasX, mouseX, coordsMaxCount, chartParameters.dpiViewWidth)) {
         context.save();
 
         context.fillText(String(x), canvasX, yEnd);

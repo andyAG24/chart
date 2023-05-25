@@ -29,10 +29,14 @@ export interface ChartConfig {
   };
 }
 
+export type Ratio = {
+  [key in 'x' | 'y']: number;
+};
+
 export interface ChartParameters extends Required<Omit<ChartConfig, 'pointer'>> {
   dpiViewHeight: number;
   dpiViewWidth: number;
-  yRatio: number;
+  ratio: Ratio;
 }
 
 export interface ChartProps {
